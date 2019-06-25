@@ -211,6 +211,8 @@ class IPython_cell_magic(IPython_magic):
     <%%new_magic at ...>
     """
 
+    __package__ = moreshell
+
     def __init__(self, arguments):
         """Prepare decorator with a :class:`zetup.with_arguments` object."""
         zetup.program.__init__(self, arguments)
