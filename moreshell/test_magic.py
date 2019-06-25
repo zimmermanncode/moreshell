@@ -48,7 +48,7 @@ class TestIPython_magic(object):
 
         And test that a :exc:`moreshell.MagicExit` with code ``0`` is raised
         """
-        @IPython_magic(with_arguments('-f', '--flag'))
+        @IPython_magic(with_arguments('value')('-f', '--flag'))
         def magic(args):  # pragma: no cover
             pass
 
@@ -58,7 +58,10 @@ class TestIPython_magic(object):
 
         std = capsys.readouterr()
         assert std.out == dedent("""
-        usage: %magic [-h] [-f FLAG]
+        usage: %magic [-h] [-f FLAG] value
+
+        positional arguments:
+          value
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -74,7 +77,7 @@ class TestIPython_magic(object):
 
         And test that a :exc:`moreshell.MagicExit` with code ``0`` is raised
         """
-        @IPython_magic(with_arguments('-f', '--flag'))
+        @IPython_magic(with_arguments('value')('-f', '--flag'))
         def magic(args):  # pragma: no cover
             pass
 
@@ -84,7 +87,10 @@ class TestIPython_magic(object):
 
         std = capsys.readouterr()
         assert std.out == dedent("""
-        usage: %magic [-h] [-f FLAG]
+        usage: %magic [-h] [-f FLAG] value
+
+        positional arguments:
+          value
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -98,7 +104,7 @@ class TestIPython_magic(object):
 
         And test that a :exc:`moreshell.MagicExit` with code ``0`` is raised
         """
-        @IPython_magic(with_arguments('-f', '--flag'))
+        @IPython_magic(with_arguments('value')('-f', '--flag'))
         def magic(args):  # pragma: no cover
             pass
 
@@ -112,7 +118,10 @@ class TestIPython_magic(object):
 
         std = capsys.readouterr()
         assert std.out == dedent("""
-        usage: %%magic [-h] [-f FLAG]
+        usage: %%magic [-h] [-f FLAG] value
+
+        positional arguments:
+          value
 
         optional arguments:
           -h, --help            show this help message and exit
@@ -128,7 +137,7 @@ class TestIPython_magic(object):
 
         And test that a :exc:`moreshell.MagicExit` with code ``0`` is raised
         """
-        @IPython_magic(with_arguments('-f', '--flag'))
+        @IPython_magic(with_arguments('value')('-f', '--flag'))
         def magic(args):  # pragma: no cover
             pass
 
@@ -142,7 +151,10 @@ class TestIPython_magic(object):
 
         std = capsys.readouterr()
         assert std.out == dedent("""
-        usage: %%magic [-h] [-f FLAG]
+        usage: %%magic [-h] [-f FLAG] value
+
+        positional arguments:
+          value
 
         optional arguments:
           -h, --help            show this help message and exit
