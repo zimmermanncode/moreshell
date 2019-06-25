@@ -25,15 +25,14 @@ class MagicExit(SystemExit):
 class magic_function_meta(ABCMeta, zetup.meta):
     """Metaclass for :class:`moreshell.magic.magic_function`."""
 
-    __package__ = None
-
     def __init__(cls, clsname, bases, clsattrs):
         """
         Create a ``.__doc__`` property for every ``%magic``.
 
         To get the ``--help`` output when using ``%magic?`` in IPython
         """
-        super(magic_function_meta, cls).__init__(clsname, bases, clsattrs)
+        ABCMeta.__init__(cls, clsname, bases, clsattrs)
+        zetup.meta.__init__(cls, clsname, bases, clsattrs)
 
         def __doc__(self):
             """Print the ``--help`` output of this ``%magic``."""
@@ -49,8 +48,6 @@ class magic_function(with_metaclass(magic_function_meta, object)):
     Which are created with :class:`moreshell.IPython_magic` and
     :class:`moreshell.IPython_cell_magic`, respectively.
     """
-
-    __package__ = None
 
     @abstractproperty
     def creator(self):  # pragma: no cover
@@ -80,6 +77,7 @@ class IPython_magic(zetup.program):
 
     >>> @IPython_magic(
     ...     with_arguments
+    ...     ('value')
     ...     ('-f', '--flag')
     ...     ('-o', '--other-flag')
     ... )
@@ -201,6 +199,7 @@ class IPython_cell_magic(IPython_magic):
 
     >>> @IPython_cell_magic(
     ...     with_arguments
+    ...     ('value')
     ...     ('-f', '--flag')
     ...     ('-o', '--other-flag')
     ... )
