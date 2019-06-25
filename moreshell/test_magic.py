@@ -32,7 +32,7 @@ class TestIPython_magic(object):
 
         When the internal ``_magic_type`` argument is used improperly
         """
-        def magic(args):  # pragma: no cover
+        def magic(shell, args):  # pragma: no cover
             pass
 
         with pytest.raises(
@@ -49,7 +49,7 @@ class TestIPython_magic(object):
         And test that a :exc:`moreshell.MagicExit` with code ``0`` is raised
         """
         @IPython_magic(with_arguments('value')('-f', '--flag'))
-        def magic(args):  # pragma: no cover
+        def magic(shell, args):  # pragma: no cover
             pass
 
         with pytest.raises(MagicExit, match=r'^0$') as exc:
@@ -78,7 +78,7 @@ class TestIPython_magic(object):
         And test that a :exc:`moreshell.MagicExit` with code ``0`` is raised
         """
         @IPython_magic(with_arguments('value')('-f', '--flag'))
-        def magic(args):  # pragma: no cover
+        def magic(shell, args):  # pragma: no cover
             pass
 
         with pytest.raises(MagicExit, match=r'^0$') as exc:
@@ -105,11 +105,11 @@ class TestIPython_magic(object):
         And test that a :exc:`moreshell.MagicExit` with code ``0`` is raised
         """
         @IPython_magic(with_arguments('value')('-f', '--flag'))
-        def magic(args):  # pragma: no cover
+        def magic(shell, args):  # pragma: no cover
             pass
 
         @magic.cell_magic
-        def magic(args, block):  # pragma: no cover
+        def magic(shell, args, block):  # pragma: no cover
             pass
 
         with pytest.raises(MagicExit, match=r'^0$') as exc:
@@ -138,11 +138,11 @@ class TestIPython_magic(object):
         And test that a :exc:`moreshell.MagicExit` with code ``0`` is raised
         """
         @IPython_magic(with_arguments('value')('-f', '--flag'))
-        def magic(args):  # pragma: no cover
+        def magic(shell, args):  # pragma: no cover
             pass
 
         @magic.cell_magic
-        def magic(args, block):  # pragma: no cover
+        def magic(shell, args, block):  # pragma: no cover
             pass
 
         with pytest.raises(MagicExit, match=r'^0$') as exc:
@@ -177,7 +177,7 @@ class TestIPython_cell_magic(object):
         And that a :exc:`moreshell.MagicExit` with code ``0`` is raised
         """
         @IPython_cell_magic(with_arguments('-f', '--flag'))
-        def magic(args, block):  # pragma: no cover
+        def magic(shell, args, block):  # pragma: no cover
             pass
 
         with pytest.raises(MagicExit, match=r'^0$') as exc:
@@ -203,7 +203,7 @@ class TestIPython_cell_magic(object):
         And test that a :exc:`moreshell.MagicExit` with code ``0`` is raised
         """
         @IPython_cell_magic(with_arguments('-f', '--flag'))
-        def magic(args):  # pragma: no cover
+        def magic(shell, args):  # pragma: no cover
             pass
 
         with pytest.raises(MagicExit, match=r'^0$') as exc:

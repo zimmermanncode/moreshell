@@ -4,7 +4,6 @@ from abc import ABCMeta, abstractproperty
 
 import zetup
 from six import with_metaclass
-from zetup import object
 
 import moreshell
 
@@ -41,7 +40,7 @@ class magic_function_meta(ABCMeta, zetup.meta):
         cls.__doc__ = property(__doc__)
 
 
-class magic_function(with_metaclass(magic_function_meta, object)):
+class magic_function(with_metaclass(magic_function_meta, zetup.object)):
     """
     Abstract base class for ``%magic`` and cell ``%%magic`` functions.
 
@@ -59,6 +58,11 @@ class magic_function(with_metaclass(magic_function_meta, object)):
         Is abstract and must therefore be overridden in derived classes!
         """
         pass
+
+    @property
+    def shell(self):
+        """Get the IPython shell instance for this ``%magic``."""
+        return self.creator.shell
 
     def parse(self, line):
         """Parse the argument `line` of a ``%magic`` call."""
@@ -108,10 +112,11 @@ class IPython_magic(zetup.program):
 
     __package__ = moreshell
 
-    def __init__(self, arguments):
+    def __init__(self, arguments, shell=None):
         """Prepare decorator with a :class:`zetup.with_arguments` object."""
         zetup.program.__init__(self, arguments)
-        self.cell_magic = IPython_cell_magic(arguments)
+        self.cell_magic = IPython_cell_magic(arguments, shell)
+        self.shell = shell
 
     def parse_args(self, line):
         """
@@ -132,10 +137,12 @@ class IPython_magic(zetup.program):
         The `_magic_type` parameter is only for internal use and creates a
         cell ``%%magic`` when changed to ``'cell'``
         """
-        from IPython import get_ipython
-        shell = get_ipython()
-        if shell is not None:  # pragma: no cover
-            magics = shell.magics_manager.magics
+        if self.shell is None:
+            from IPython import get_ipython
+            self.shell = get_ipython()
+
+        if self.shell is not None:  # pragma: no cover
+            magics = self.shell.magics_manager.magics
         else:
             # for testing purposes w/o running IPython shell
             magics = {'line': {}, 'cell': {}}
@@ -154,7 +161,7 @@ class IPython_magic(zetup.program):
                     return magic_deco
 
                 def __call__(self, line, block):
-                    return func(self.parse(line), block)
+                    return func(self.shell, self.parse(line), block)
 
             self.prog = '%%{}'.format(func.__name__)
             cell_magic.__name__ = self.prog
@@ -171,7 +178,7 @@ class IPython_magic(zetup.program):
                     return magic_deco
 
                 def __call__(self, line):
-                    return func(self.parse(line))
+                    return func(self.shell, self.parse(line))
 
                 def cell_magic(self, func):
                     """Create an accompanying cell ``%%magic`` from `func`."""
@@ -213,9 +220,10 @@ class IPython_cell_magic(IPython_magic):
 
     __package__ = moreshell
 
-    def __init__(self, arguments):
+    def __init__(self, arguments, shell=None):
         """Prepare decorator with a :class:`zetup.with_arguments` object."""
         zetup.program.__init__(self, arguments)
+        self.shell = shell
 
     def __call__(self, func):
         """Decorate `func` to register as an IPython cell ``%magic``."""
