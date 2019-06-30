@@ -2,18 +2,24 @@
 
 import sys
 from argparse import ArgumentParser
+from importlib import import_module
+from inspect import ismodule
 
 import zetup
 from decorator import decorator
-from moretools import qualname
+from moretools import dictkeys, qualname
 from zetup import with_arguments
 
-from .magic import IPython_magic, IPython_cell_magic, MagicExit
+from .magic import IPython_magic, IPython_cell_magic, IPythonMagicExit
+from .module import IPython_magic_module, load_magic_modules
+
 
 zetup.toplevel(__name__, (
-    'IPython_magic',
     'IPython_cell_magic',
-    'MagicExit',
+    'IPython_magic',
+    'IPython_magic_module',
+    'IPythonMagicExit',
+    'load_magic_modules',
 
     # zetup.with_arrguments is so tightly bound to the IPython_magic decorator
     # for defining the magic command line arguments (just like it's used with
