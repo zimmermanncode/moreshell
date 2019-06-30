@@ -7,10 +7,10 @@ from six import with_metaclass
 
 import moreshell
 
-__all__ = ('IPython_magic', 'IPython_cell_magic', 'MagicExit')
+__all__ = ('IPython_magic', 'IPython_cell_magic', 'IPythonMagicExit')
 
 
-class MagicExit(SystemExit):
+class IPythonMagicExit(SystemExit):
     """
     A :class:`moreshell.IPython_magic`-based ``%magic`` raised ``SystemExit``.
 
@@ -48,6 +48,20 @@ class magic_function(with_metaclass(magic_function_meta, zetup.object)):
     :class:`moreshell.IPython_cell_magic`, respectively.
     """
 
+    #:  It's a kind of magic.
+    #
+    #   There can be only two: ``'line'`` or ``'cell'``
+    kind_of_magic = 'line'
+
+    #: The IPython shell instance, which is assigned by :meth:`.load`.
+    shell = None
+
+    def __init__(self, func):
+        """Initialize with `func` from which the ``%magic`` was created."""
+        self.__func__ = func
+        self.__module__ = func.__module__
+        self.__name__ = func.__name__
+
     @abstractproperty
     def creator(self):  # pragma: no cover
         """
@@ -59,10 +73,14 @@ class magic_function(with_metaclass(magic_function_meta, zetup.object)):
         """
         pass
 
-    @property
-    def shell(self):
-        """Get the IPython shell instance for this ``%magic``."""
-        return self.creator.shell
+    def load(self, shell):
+        magics = shell.magics_manager.magics[self.kind_of_magic]
+        magics[self.__name__] = self
+        self.shell = shell
+
+    def unload(self, shell):
+        del shell.magics_manager.magics[self.kind_of_magic][self.__name__]
+        self.shell = None
 
     def parse(self, line):
         """Parse the argument `line` of a ``%magic`` call."""
@@ -112,41 +130,31 @@ class IPython_magic(zetup.program):
 
     __package__ = moreshell
 
-    def __init__(self, arguments, shell=None):
+    def __init__(self, arguments):
         """Prepare decorator with a :class:`zetup.with_arguments` object."""
         zetup.program.__init__(self, arguments)
-        self.cell_magic = IPython_cell_magic(arguments, shell)
-        self.shell = shell
+        self.cell_magic = IPython_cell_magic(arguments)
 
     def parse_args(self, line):
         """
         Override ``argparse.ArgumentParser.parse_args``.
 
-        Catch ``SystemExit`` and raise :exc:`moreshell.MagicExit` instead
+        Catch ``SystemExit`` and raise :exc:`moreshell.IPythonMagicExit`
+        instead
         """
         try:
             return super(IPython_magic, self).parse_args(line)
 
         except SystemExit as exc:
-            raise MagicExit(exc.code)
+            raise IPythonMagicExit(exc.code)
 
-    def __call__(self, func, _magic_type='line'):
+    def __call__(self, func, kind_of_magic='line'):
         """
         Decorate `func` to register as an IPython ``%magic``.
 
-        The `_magic_type` parameter is only for internal use and creates a
+        The `kind_of_magic` parameter is only for internal use and creates a
         cell ``%%magic`` when changed to ``'cell'``
         """
-        if self.shell is None:
-            from IPython import get_ipython
-            self.shell = get_ipython()
-
-        if self.shell is not None:  # pragma: no cover
-            magics = self.shell.magics_manager.magics
-        else:
-            # for testing purposes w/o running IPython shell
-            magics = {'line': {}, 'cell': {}}
-
         # to be used instead of self in the inner classes below
         magic_deco = self
 
@@ -165,10 +173,12 @@ class IPython_magic(zetup.program):
 
             self.prog = '%%{}'.format(func.__name__)
             cell_magic.__name__ = self.prog
-            magic = magics['cell'][func.__name__] = cell_magic()
-            return magic
+            cell_magic.kind_of_magic = 'cell'
+            return cell_magic(func)
+            # magic = magics['cell'][func.__name__] = cell_magic(func)
+            # return magic
 
-        if _magic_type == 'line':
+        if kind_of_magic == 'line':
             class line_magic(magic_function):
 
                 __module__ = None
@@ -187,15 +197,16 @@ class IPython_magic(zetup.program):
 
             self.prog = '%{}'.format(func.__name__)
             line_magic.__name__ = self.prog
-            magic = magics['line'][func.__name__] = line_magic()
-            return magic
+            return line_magic(func)
+            # magic = magics['line'][func.__name__] = line_magic(func)
+            # return magic
 
-        elif _magic_type == 'cell':
+        elif kind_of_magic == 'cell':
             return cell_magic()
 
         raise AssertionError(
-            "_magic_type of {}.__call__ must be either 'line' or 'cell', "
-            "not: {!r}".format(type(self), _magic_type))
+            "kind_of_magic of {}.__call__ can be only two: 'line' or 'cell', "
+            "not: {!r}".format(type(self), kind_of_magic))
 
 
 class IPython_cell_magic(IPython_magic):
@@ -220,13 +231,12 @@ class IPython_cell_magic(IPython_magic):
 
     __package__ = moreshell
 
-    def __init__(self, arguments, shell=None):
+    def __init__(self, arguments):
         """Prepare decorator with a :class:`zetup.with_arguments` object."""
         zetup.program.__init__(self, arguments)
-        self.shell = shell
 
     def __call__(self, func):
         """Decorate `func` to register as an IPython cell ``%magic``."""
         self.prog = '%%{}'.format(func.__name__)
         return super(IPython_cell_magic, self).__call__(
-            func, _magic_type='cell')
+            func, kind_of_magic='cell')
