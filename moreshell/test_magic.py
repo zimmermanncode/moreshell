@@ -5,7 +5,7 @@ from textwrap import dedent
 import pytest
 
 from moreshell import (
-    IPython_magic, IPython_cell_magic, MagicExit, with_arguments)
+    IPython_magic, IPython_cell_magic, IPythonMagicExit, with_arguments)
 from moreshell.magic import magic_function
 
 
@@ -14,9 +14,17 @@ class Test_magic_function(object):
 
     def test__init__fails(self):
         """Test that direct instantiation of the abstract base class fails."""
+        def func(shell, args):  # pragma: no cover
+            func.was_not_called = False
+
+        func.was_not_called = True
+
         with pytest.raises(
                 TypeError, match=r"^Can't instantiate abstract class"):
-            magic_function()
+            magic_function(func)
+
+        # Also check that func doesn't get called
+        assert func.was_not_called
 
 
 class TestIPython_magic(object):
@@ -26,21 +34,21 @@ class TestIPython_magic(object):
     And test the ``%magic`` and cell ``%%magic`` functions created with it
     """
 
-    def test__call__with_invalid__magic_type(self):
+    def test__call__with_invalid_kind_of_magic(self):
         """
         Test that an ``AssertionError`` is raised.
 
-        When the internal ``_magic_type`` argument is used improperly
+        When the internal ``kind_of_magic`` argument is used improperly
         """
         def magic(shell, args):  # pragma: no cover
             pass
 
         with pytest.raises(
                 AssertionError,
-                match=r"either 'line' or 'cell', not: 'invalid'$"):
+                match=r" 'line' or 'cell', not: 'invalid'$"):
 
             magic_deco = IPython_magic(with_arguments('-f', '--flag'))
-            magic_deco(magic, _magic_type='invalid')
+            magic_deco(magic, kind_of_magic='invalid')
 
     def test_magic__help(self, capsys):
         """
@@ -50,11 +58,17 @@ class TestIPython_magic(object):
         """
         @IPython_magic(with_arguments('value')('-f', '--flag'))
         def magic(shell, args):  # pragma: no cover
-            pass
+            magic.was_not_called = False
 
-        with pytest.raises(MagicExit, match=r'^0$') as exc:
-            magic('--help')
+        magic.was_not_called = True
+
+        with pytest.raises(IPythonMagicExit, match=r'^0$') as exc:
+            magic('--help')  # pylint: disable=no-value-for-parameter
         assert exc.value.code == 0
+
+        # Also, due to the exception, the decorated function should not get
+        # called
+        assert magic.was_not_called
 
         std = capsys.readouterr()
         assert std.out == dedent("""
@@ -79,11 +93,17 @@ class TestIPython_magic(object):
         """
         @IPython_magic(with_arguments('value')('-f', '--flag'))
         def magic(shell, args):  # pragma: no cover
-            pass
+            magic.was_not_called = False
 
-        with pytest.raises(MagicExit, match=r'^0$') as exc:
+        magic.was_not_called = True
+
+        with pytest.raises(IPythonMagicExit, match=r'^0$') as exc:
             assert magic.__doc__ is None
         assert exc.value.code == 0
+
+        # Also, due to the exception, the decorated function should not get
+        # called
+        assert magic.was_not_called
 
         std = capsys.readouterr()
         assert std.out == dedent("""
@@ -110,11 +130,17 @@ class TestIPython_magic(object):
 
         @magic.cell_magic
         def magic(shell, args, block):  # pragma: no cover
-            pass
+            magic.cell.was_not_called = False
 
-        with pytest.raises(MagicExit, match=r'^0$') as exc:
+        magic.cell.was_not_called = True
+
+        with pytest.raises(IPythonMagicExit, match=r'^0$') as exc:
             magic.cell('--help', block="")
         assert exc.value.code == 0
+
+        # Also, due to the exception, the decorated function should not get
+        # called
+        assert magic.cell.was_not_called
 
         std = capsys.readouterr()
         assert std.out == dedent("""
@@ -143,11 +169,17 @@ class TestIPython_magic(object):
 
         @magic.cell_magic
         def magic(shell, args, block):  # pragma: no cover
-            pass
+            magic.cell.was_not_called = False
 
-        with pytest.raises(MagicExit, match=r'^0$') as exc:
+        magic.cell.was_not_called = True
+
+        with pytest.raises(IPythonMagicExit, match=r'^0$') as exc:
             assert magic.cell.__doc__ is None
         assert exc.value.code == 0
+
+        # Also, due to the exception, the decorated function should not get
+        # called
+        assert magic.cell.was_not_called
 
         std = capsys.readouterr()
         assert std.out == dedent("""
@@ -178,11 +210,17 @@ class TestIPython_cell_magic(object):
         """
         @IPython_cell_magic(with_arguments('-f', '--flag'))
         def magic(shell, args, block):  # pragma: no cover
-            pass
+            magic.was_not_called = False
 
-        with pytest.raises(MagicExit, match=r'^0$') as exc:
-            magic('--help', block="")
+        magic.was_not_called = True
+
+        with pytest.raises(IPythonMagicExit, match=r'^0$') as exc:
+            magic('--help', block="")  # pylint: disable=no-value-for-parameter
         assert exc.value.code == 0
+
+        # Also, due to the exception, the decorated function should not get
+        # called
+        assert magic.was_not_called
 
         std = capsys.readouterr()
         assert std.out == dedent("""
@@ -204,11 +242,17 @@ class TestIPython_cell_magic(object):
         """
         @IPython_cell_magic(with_arguments('-f', '--flag'))
         def magic(shell, args):  # pragma: no cover
-            pass
+            magic.was_not_called = False
 
-        with pytest.raises(MagicExit, match=r'^0$') as exc:
+        magic.was_not_called = True
+
+        with pytest.raises(IPythonMagicExit, match=r'^0$') as exc:
             assert magic.__doc__ is None
         assert exc.value.code == 0
+
+        # Also, due to the exception, the decorated function should not get
+        # called
+        assert magic.was_not_called
 
         std = capsys.readouterr()
         assert std.out == dedent("""
