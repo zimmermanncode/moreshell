@@ -7,6 +7,7 @@ from inspect import ismodule
 import zetup
 from moretools import dictkeys
 
+import moreshell
 from .magic import IPython_magic, IPython_cell_magic, magic_function
 
 zetup.module(__name__, [
@@ -19,27 +20,31 @@ class IPython_magic_module(zetup.module):
     """
     Wrapper for modules defining new ``%magic`` and cell ``%%magic``.
 
-    Just instantiate in the beginning of such a module like shown in
-    :mod:`moreshell.test.magic` ::
+    Just instantiate it in the beginning of such a module like shown in
+    :mod:`moreshell.test.magic_module` ::
 
         from moreshell import IPython_magic_module
 
-        IPython_magic, IPython_cell_magic = IPython_magic_module(__name__, [
+        IPython_magic_module(__name__, [
             'test_moreshell',
         ])
 
-    It's based on ``zetup.module`` and takes the same two basic arguments
+    The wrapper is based on ``zetup.module`` and takes the same two basic
     arguments:
 
-    -   The name of the wrapped module
-    -   The module's API names (that would normally be defined in ``__all__``)
+    -   The ``__name__`` of the wrapped module
+    -   The module's API names that would normally be defined in ``__all__``.
+        In the case of this wrapper type, they are essentially the names of
+        the IPython ``%magic`` functions defined in the module
 
-
+    The wrapped module then features :meth:`.load` and :meth:`.unload` to
+    dynamically add or remove from IPython's ``magics_manager`` all the
+    ``%magic`` and cell ``%%magic`` functions of the module, meaning all the
+    functions which are defined using the :func:`moreshell.IPython_magic` and
+    :func:`moreshell.IPython_cell_magic` decorators, respectively
     """
 
-    def __init__(self, name, api):
-        super(IPython_magic_module, self).__init__(
-            name, api, __iter__=lambda: iter((self.magic, self.cell_magic)))
+    __package__ = moreshell
 
     def load(self, shell):
         for name in self.__all__:
@@ -52,12 +57,6 @@ class IPython_magic_module(zetup.module):
             obj = getattr(self, name)
             if isinstance(obj, magic_function):
                 obj.unload(shell=shell)
-
-    def magic(self, arguments):
-        return IPython_magic(arguments)
-
-    def cell_magic(self, arguments):
-        return IPython_cell_magic(arguments)
 
 
 def load_magic_modules(*names, **kwargs):
