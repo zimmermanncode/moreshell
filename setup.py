@@ -12,10 +12,10 @@ from setuptools import setup
 dist = None
 try:
     dist = setup(
-        setup_requires=["zetup >= 0.2.49.dev2"],
+        setup_requires=["zetup >= 0.2.49.dev9"],
 
         use_zetup=True,
     )
 finally:
-    if dist is not None:
+    if dist is not None and hasattr(dist, 'zetup_made'):
         del dist.zetup_made
