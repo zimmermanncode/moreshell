@@ -1,0 +1,28 @@
+sudo: false
+git:
+  depth: false
+
+language: python
+python:
+  - '2.7'
+  - '3.4'
+  - '3.5'
+  - '3.6'
+  - pypy
+
+install:
+  - pip install -U pip setuptools
+  - pip install -e .
+  - pip install -U -r test-requirements.txt
+  - pip install tox tox-travis
+
+script:
+  - py.test -vv test
+  - robot test
+  - tox -rv
+
+deploy:
+  provider: pypi
+  user: userzimmermann
+  on:
+    python: '2.7'
