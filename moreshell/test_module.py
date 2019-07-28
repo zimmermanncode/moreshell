@@ -1,10 +1,12 @@
 """Test :mod:`moreshell.module`."""
 
+import re
 import sys
 
 import pytest
 
 from moreshell import load_magic_modules
+from moreshell.module import import_magic_modules
 
 
 def test_load_magic_modules(magic_module__name__, shell):
@@ -82,7 +84,7 @@ def test_load_magic_modules_with_package_object(
 def test_load_magic_modules_with_invalid_keywords(
         magic_module__name__, shell):
     """
-    Test that :func:`moreshell.load_magic_modules` raises a ``TypeError``.
+    Test :func:`moreshell.load_magic_modules` raises ``TypeError``.
 
     When called with invalid keyword arguments
     """
@@ -90,8 +92,23 @@ def test_load_magic_modules_with_invalid_keywords(
 
     with pytest.raises(
             TypeError,
-            match=r"unexpected keyword argument\(s\) 'invalid'$"):
+            match=r" unexpected keyword argument\(s\) 'invalid'$"):
         load_magic_modules(magic_module__name__, shell=shell, invalid=True)
+
+
+def test_import_magic_modules_with_non_magic_module():
+    """
+    Test :func:`moreshell.module.import_magic_modules` raises ``TypeError``.
+
+    When a given module is not wrapped with
+    :class:`moreshell.IPython_magic_module`
+    """
+    with pytest.raises(TypeError, match=(
+            r"{} is not wrapped with "
+            r"<class 'moreshell.IPython_magic_module'>"
+            .format(re.escape(repr(sys.modules[__name__]))))):
+
+        import_magic_modules([__name__])
 
 
 class TestIPython_magic_module(object):
