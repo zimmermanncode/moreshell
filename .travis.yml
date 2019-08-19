@@ -23,5 +23,7 @@ script:
 deploy:
   provider: pypi
   user: userzimmermann
+  password:
+    secure: kW2UCdmcqeix4F8KmkeMlzo0u4kx0LxsFr+IlTzgCwkGYVHojL1AlV3qtzF1tArxSnlPY3D/xvffHHcyWuOZGS8YiScTfMkBbasdMXGStemaCQ+iJoP73NQVu+II9sCvqlbQY3MOTdI3r5B/20OHTguFc345O6FB2yxwdTc/POO89msLLjfV82zBQr19QEK9xdPCR43+Pi5ApoeYXByqSJBNzwTDe6/7CnMtJaEDepK/ZVan22DnPkMuDxTAQVvXum0yrzL5dOVKOi616EnfacbjxS8vPuSFdn5Nof0dtVf882Hh6ATr+CyW2P8pkv1wwXoswMp3c7jbZ6LhjPJ43mDe0Y/fLCB/+OKmXZvkW+1qzWjwRYk46qOn6XhLiIk87PZOq/H3Ir01she97HyYNLr23qjcuxRg/LgSPMOA2p9b7LCIFi0a4NrpgSdKrn3/kcxZmUWNjLToWLvMi1jghiMjzte8qw85FKyJ+EsDT6bXWwOVAMoe7iYgSc6TQQLCwGGCTbygjUe4yfFS2IKCqr8wRBnH5x3mt2LLpT3g0G5Z2bq6J1RswgUc1UEMb+cndO55H6ZoANFQ41O/VY44u4BEDEZ+RZ/okQ3J9RdlptUuroRjQQTivargN1XxLc/LJSmvK0UKHTVM5vbFcEQydqyJy5dMj5sCK87lzgfUntU=
   on:
     python: '2.7'
