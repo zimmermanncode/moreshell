@@ -10,10 +10,10 @@ python:
   - pypy
 
 install:
-  - pip install -U pip setuptools
-  - pip install -e .
-  - pip install -U -r test-requirements.txt
-  - pip install tox tox-travis
+  - python -m pip install -U pip setuptools six wheel
+  - python -m pip install -U -e .
+  - python -m pip install -U -r test-requirements.txt
+  - python -m pip install -U tox tox-travis
 
 script:
   - py.test -vv test
