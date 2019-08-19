@@ -21,12 +21,15 @@ def test_load_magic_modules(magic_module__name__, shell):
     """
     assert 'test_moreshell' not in shell.magics_manager.magics['line']
 
-    modules = load_magic_modules(magic_module__name__, shell=shell)
+    # HACK: Python 3.5 on Travis CI strangely reports missing coverage
+    modules = load_magic_modules(  # pragma: no cover
+        magic_module__name__, shell=shell)
 
-    from moreshell.test import magic_module
-    assert sys.modules[magic_module__name__] is magic_module
+    from moreshell.test import magic_module  # pragma: no cover
+    assert (  # pragma: no cover
+        sys.modules[magic_module__name__] is magic_module)
 
-    assert modules == [magic_module]
+    assert modules == [magic_module]  # pragma: no cover
     assert shell.magics_manager.magics['line']['test_moreshell'] is (
         sys.modules[magic_module__name__].test_moreshell)
 
