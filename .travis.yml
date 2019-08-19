@@ -16,9 +16,15 @@ install:
   - python -m pip install -U tox tox-travis
 
 script:
-  - py.test -vv test
-  - robot test
-  - tox -rv
+  - python -m pytest -vv --doctest-modules nodely --cov nodely --cov-report term-missing --cov-fail-under 100
+  - python -m robot test
+  - python -m tox -r -v
+
+  - python -m pip install zetup[all]
+  - python -m zetup install
+  # - python -m zetup pytest
+  - python -m zetup sdist
+  - python -m zetup tox
 
 deploy:
   provider: pypi
