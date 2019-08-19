@@ -1,0 +1,38 @@
+environment:
+  matrix:
+    - PY: C:\Python27\python.exe
+    - PY: C:\Python27-x64\python.exe
+
+    - PY: C:\Python35\python.exe
+    - PY: C:\Python35-x64\python.exe
+
+    - PY: C:\Python36\python.exe
+    - PY: C:\Python36-x64\python.exe
+
+    - PY: C:\Python37\python.exe
+    - PY: C:\Python37-x64\python.exe
+
+build: off
+
+install:
+  - cmd: |
+        %PY% -m pip install -U pip setuptools six wheel
+        %PY% -m pip install -U -e .
+        %PY% -m pip install -U -r test-requirements.txt
+        rem %PY% -m pip install -U tox
+
+test_script:
+  - cmd: |
+        %PY% -m pytest -vv --doctest-modules moreshell --cov moreshell --cov-report term-missing --cov-fail-under 100
+        rem %PY% -m tox -r -v
+
+  - cmd: |
+        %PY% -m pip uninstall --yes moreshell
+        %PY% -m pip install zetup[all]
+        %PY% -m zetup install
+        %PY% -m robot test
+
+  - cmd: |
+        rem %PY% -m zetup pytest
+        %PY% -m zetup sdist
+        rem %PY% -m zetup tox
