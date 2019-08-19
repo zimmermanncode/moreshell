@@ -16,7 +16,7 @@ install:
   - python -m pip install -U tox tox-travis
 
 script:
-  - python -m pytest -vv --doctest-modules nodely --cov nodely --cov-report term-missing --cov-fail-under 100
+  - python -m pytest -vv --doctest-modules moreshell --cov moreshell --cov-report term-missing --cov-fail-under 100
   - python -m robot test
   - python -m tox -r -v
 
