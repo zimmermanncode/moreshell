@@ -172,7 +172,7 @@ class IPython_magic(zetup.program):
                     return func(self.shell, self.parse(line), block)
 
             self.prog = '%%{}'.format(func.__name__)
-            cell_magic.__name__ = self.prog
+            cell_magic.__name__ = cell_magic.__qualname__ = self.prog
             cell_magic.kind_of_magic = 'cell'
             return cell_magic(func)
             # magic = magics['cell'][func.__name__] = cell_magic(func)
@@ -196,7 +196,7 @@ class IPython_magic(zetup.program):
                     return self
 
             self.prog = '%{}'.format(func.__name__)
-            line_magic.__name__ = self.prog
+            line_magic.__name__ = line_magic.__qualname__ = self.prog
             return line_magic(func)
             # magic = magics['line'][func.__name__] = line_magic(func)
             # return magic
